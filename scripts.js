@@ -17,23 +17,55 @@ var chart = data => {
   var svg = d3.select('svg')
   var width = 800
   var height = 500
+  var margin = {top: 20, right: 0, bottom: 30, left: 40}
 
-  x = d3.scaleBand()
+  var x = d3.scaleBand()
     .domain(data.map(function(d) { return d[0] }))
-    .range([0, width])
+    .range([margin.left, width - margin.right])
     .padding(0.1)
+  
+  var xForAxis = d3.scaleBand()
+    .domain(data
+      .filter(function(d, i) { return parseInt(d[0].substr(0, 4), 10) % 5 === 0 })
+      .map(function(d) { return d[0].substr(0, 4) }))
+    .range([margin.left, width - margin.right])
 
-  y = d3.scaleLinear()
-    .domain([0, d3.max(data, function(d) { return d[1] })]).nice()
-    .range([height, 0])
+  var y = d3.scaleLinear()
+    .domain([0, d3.max(data, function(d) { return d[1] })])
+    .range([height - margin.bottom, margin.top])
+
+  var xAxis = function(g) {
+    return g.attr('transform', `translate(0, ${height - margin.bottom})`)
+            .attr('class', 'tick')
+            .call(d3.axisBottom(x))
+  }
+
+  var yAxis = function(g) {
+    return g.attr('transform', `translate(${margin.left}, 0)`)
+            .attr('class', 'tick')
+            .call(d3.axisLeft(y))
+  }
 
   svg.append('g')
-    .attr('fill', 'blue')
+    .attr('fill', 'steelblue')
     .selectAll('rect').data(data).enter().append('rect')
+    .attr('class', 'bar')
     .attr('x', function(d) { return x(d[0]) })
     .attr('y', function(d) { return y(d[1]) })
     .attr('height', function(d) { return (y(0) - y(d[1])) })
-    .attr('width', '5')
+    .attr('width', '3')
+    .attr('data-date', function(d) { return d[0] })
+    .attr('data-gdp', function(d) { return d[1] })
+    .append('title')
+    .text(function(d) { return d })
+
+  svg.append('g')
+    .attr('id', 'x-axis')
+    .call(xAxis)
+
+  svg.append('g')
+    .attr('id', 'y-axis')
+    .call(yAxis)
 }
 
 var loadData = () => {
