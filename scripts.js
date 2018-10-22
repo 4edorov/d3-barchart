@@ -20,16 +20,10 @@ var chart = data => {
   var margin = {top: 20, right: 0, bottom: 30, left: 40}
 
   var x = d3.scaleBand()
-    .domain(data.map(function(d) { return d[0] }))
+    .domain([new Date(1950, 0, 1), new Date(2015, 0, 1)])
     .range([margin.left, width - margin.right])
     .padding(0.1)
   
-  var xForAxis = d3.scaleBand()
-    .domain(data
-      .filter(function(d, i) { return parseInt(d[0].substr(0, 4), 10) % 5 === 0 })
-      .map(function(d) { return d[0].substr(0, 4) }))
-    .range([margin.left, width - margin.right])
-
   var y = d3.scaleLinear()
     .domain([0, d3.max(data, function(d) { return d[1] })])
     .range([height - margin.bottom, margin.top])
